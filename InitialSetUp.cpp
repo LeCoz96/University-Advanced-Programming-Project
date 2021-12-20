@@ -1,4 +1,5 @@
 #include "InitialSetUp.h"
+
 InitialSetUp::InitialSetUp()
 {
 	m_hInst = NULL;

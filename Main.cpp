@@ -7,9 +7,17 @@
 
 #include "InitialSetUp.h"
 #include "Device.h"
+#include "Graphics.h"
+#include "GameObject.h"
+
+//static ID3D11Device* g_pD3DDevice = NULL;
+//static ID3D11DeviceContext* g_pImmediateContext = NULL;
+//static IDXGISwapChain* g_pSwapChain = NULL;
 
 InitialSetUp* m_pSetUp;
 Device* m_pDevice;
+Graphics* m_pGraphics;
+GameObject* m_pObj;
 
 // Entry point to the program. Initialise everything and goes into a message processing loop. Idle time is used to render the scene
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
@@ -18,7 +26,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	m_pSetUp = new InitialSetUp();
-	m_pDevice = new Device();
+	m_pDevice = new Device(/*g_pD3DDevice, g_pImmediateContext, g_pSwapChain*/);
+	m_pGraphics = new Graphics();
+	m_pObj = new GameObject(/*g_pImmediateContext, g_pSwapChain*/);
 
 	if (FAILED(m_pSetUp->InitialiseWindow(hInstance, nCmdShow)))
 	{
@@ -29,6 +39,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	if (FAILED(m_pDevice->InitialiseD3D()))
 	{
 		DXTRACE_MSG("Failed to create Device");
+		return 0;
+	}
+
+	if (FAILED(m_pGraphics->InitialiseGraphics()))
+	{
+		DXTRACE_MSG("Failed to create Graphics");
 		return 0;
 	}
 
@@ -44,7 +60,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		else
 		{
-			// do something
+			m_pObj->RenderFrame();
 		}
 	}
 

@@ -154,12 +154,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Device.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="InitialSetUp.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MovingObject.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="StaticObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="InitialSetUp.h" />
+    <ClInclude Include="MovingObject.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="StaticInfo.h" />
+    <ClInclude Include="StaticObject.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

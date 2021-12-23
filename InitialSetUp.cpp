@@ -1,9 +1,75 @@
 #include "InitialSetUp.h"
+#include "StaticInfo.h"
 
 InitialSetUp::InitialSetUp()
 {
-	m_hInst = NULL;
-	m_hWnd = NULL;
+	m_pPlayer = new Player();
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	switch (message)
+	{
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
+	case WM_KEYDOWN:
+		if (wParam == VK_ESCAPE)
+		{
+			DestroyWindow(hWnd);
+			break;
+		}
+
+		if (wParam == 'W')
+		{
+			m_pPlayer->Forward();
+		}
+		if (wParam == 'S')
+		{
+			m_pPlayer->Backward();
+		}
+		if (wParam == 'A')
+		{
+			m_pPlayer->Left();
+		}
+		if (wParam == 'D')
+		{
+			m_pPlayer->Right();
+		}
+
+		if (wParam == VK_UP)
+		{
+			// player look up
+		}
+		if (wParam == VK_DOWN)
+		{
+			// player look down
+		}
+		if (wParam == VK_LEFT)
+		{
+			// player look left
+		}
+		if (wParam == VK_RIGHT)
+		{
+			// player look right
+		}
+
+		return 0;
+
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+
+	return 0;
 }
 
 HRESULT InitialSetUp::InitialiseWindow(HINSTANCE hInstance, int nCmdShow)
@@ -24,47 +90,17 @@ HRESULT InitialSetUp::InitialiseWindow(HINSTANCE hInstance, int nCmdShow)
 	if (!RegisterClassEx(&wcex)) return E_FAIL;
 
 	// Create Window
-	m_hInst = hInstance;
+	g_hInst = hInstance;
 	RECT rc = { 0, 0, 640, 480 };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-	m_hWnd = CreateWindow(Name, m_ProjectTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left,
+	g_hWnd = CreateWindow(Name, m_ProjectTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left,
 		rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
 
-	if (!m_hWnd) return E_FAIL;
+	if (!g_hWnd) return E_FAIL;
 
-	ShowWindow(m_hWnd, nCmdShow);
+	ShowWindow(g_hWnd, nCmdShow);
 
 	return S_OK;
 }
 
-LRESULT CALLBACK InitialSetUp::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	PAINTSTRUCT ps;
-	HDC hdc;
 
-	switch (message)
-	{
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-		break;
-
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-
-	case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE)
-		{
-			DestroyWindow(m_hWnd);
-			break;
-		}
-
-		return 0;
-
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-
-	return 0;
-}

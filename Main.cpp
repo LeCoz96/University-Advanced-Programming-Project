@@ -5,19 +5,10 @@
 #include <windows.h>
 #include <dxerr.h>
 
-#include "InitialSetUp.h"
-#include "Device.h"
-#include "Graphics.h"
-#include "GameObject.h"
+#include "Initialise.h"
 
-//static ID3D11Device* g_pD3DDevice = NULL;
-//static ID3D11DeviceContext* g_pImmediateContext = NULL;
-//static IDXGISwapChain* g_pSwapChain = NULL;
+Initialise* m_pSetUp;
 
-InitialSetUp* m_pSetUp;
-Device* m_pDevice;
-Graphics* m_pGraphics;
-GameObject* m_pObj;
 
 // Entry point to the program. Initialise everything and goes into a message processing loop. Idle time is used to render the scene
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
@@ -25,26 +16,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	m_pSetUp = new InitialSetUp();
-	m_pDevice = new Device(/*g_pD3DDevice, g_pImmediateContext, g_pSwapChain*/);
-	m_pGraphics = new Graphics();
-	m_pObj = new GameObject(/*g_pImmediateContext, g_pSwapChain*/);
+	m_pSetUp = new Initialise(hInstance, nCmdShow);
 
-	if (FAILED(m_pSetUp->InitialiseWindow(hInstance, nCmdShow)))
+	if (FAILED(m_pSetUp->InitialiseGame()))
 	{
-		DXTRACE_MSG("Failed to create Window");
-		return 0;
-	}
-
-	if (FAILED(m_pDevice->InitialiseD3D()))
-	{
-		DXTRACE_MSG("Failed to create Device");
-		return 0;
-	}
-
-	if (FAILED(m_pGraphics->InitialiseGraphics()))
-	{
-		DXTRACE_MSG("Failed to create Graphics");
+		DXTRACE_MSG("Failed to create Game");
 		return 0;
 	}
 
@@ -60,10 +36,75 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		else
 		{
-			m_pObj->RenderFrame();
+			//m_pObj->RenderFrame();
 		}
 	}
 
 	return (int)msg.wParam;
 }
 
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	switch (message)
+	{
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+		break;
+
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+
+	case WM_KEYDOWN:
+		if (wParam == VK_ESCAPE)
+		{
+			DestroyWindow(hWnd);
+			break;
+		}
+
+		//if (wParam == 'W')
+		//{
+		//	m_pPlayer->Forward();
+		//}
+		//if (wParam == 'S')
+		//{
+		//	m_pPlayer->Backward();
+		//}
+		//if (wParam == 'A')
+		//{
+		//	m_pPlayer->Left();
+		//}
+		//if (wParam == 'D')
+		//{
+		//	m_pPlayer->Right();
+		//}
+
+		//if (wParam == VK_UP)
+		//{
+		//	// player look up
+		//}
+		//if (wParam == VK_DOWN)
+		//{
+		//	// player look down
+		//}
+		//if (wParam == VK_LEFT)
+		//{
+		//	// player look left
+		//}
+		//if (wParam == VK_RIGHT)
+		//{
+		//	// player look right
+		//}
+
+		return 0;
+
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+
+	return 0;
+}

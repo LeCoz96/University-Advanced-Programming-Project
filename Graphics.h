@@ -10,8 +10,6 @@
 #include <windows.h>
 #include <dxerr.h>
 
-#include "StaticInfo.h"
-
 using namespace DirectX;
 
 // Define vertex structure
@@ -33,6 +31,9 @@ struct CONSTANT_BUFFER0
 class Graphics
 {
 private:
+	ID3D11Device* m_pD3DDevice = NULL;
+	ID3D11DeviceContext* m_pImmediateContext = NULL;
+
 	ID3D11Buffer* g_pVertexBuffer;
 	ID3D11VertexShader* g_pVertexShader;
 	ID3D11PixelShader* g_pPixelShader;
@@ -43,7 +44,7 @@ private:
 	CONSTANT_BUFFER0 g_cb0_values;
 
 public:
-	Graphics();
+	Graphics(ID3D11Device* device, ID3D11DeviceContext* context);
 	HRESULT InitialiseGraphics();
 
 };

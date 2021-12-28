@@ -1,27 +1,28 @@
 #pragma once
-#include <d3d11.h>
-#include <dxgi.h>
 #include <d3dx11.h>
-#include <windows.h>
-#include <dxerr.h>
 
-#include "InitialSetUp.h"
-#include "StaticInfo.h"
+#include "Window.h"
 
 class Device
 {
-protected:
+private:
+	HWND m_hWnd;
+
 	D3D_DRIVER_TYPE	m_driverType = D3D_DRIVER_TYPE_NULL;
 	D3D_FEATURE_LEVEL m_featureLevel = D3D_FEATURE_LEVEL_11_0;
+	ID3D11Device* m_pD3DDevice = NULL;
+	ID3D11DeviceContext* m_pImmediateContext = NULL;
+	IDXGISwapChain* m_pSwapChain = NULL;
 
-	//ID3D11Device* g_pD3DDevice;
-	//ID3D11DeviceContext* g_pImmediateContext;
-	//IDXGISwapChain* g_pSwapChain;
+	ID3D11RenderTargetView* g_pBackBufferRTView = NULL;
 
 public:
-	Device(/*ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain* swapChain*/);
+	Device(HWND hWnd);
 	HRESULT InitialiseD3D();
-	void ShutDown();
+	ID3D11Device* GetDevice() { return m_pD3DDevice; }
+	ID3D11DeviceContext* GetContext() { return m_pImmediateContext; }
+	IDXGISwapChain* GetSwapChain() { return m_pSwapChain; }
+
 
 };
 

@@ -1,6 +1,7 @@
 #include "Graphics.h"
 
-Graphics::Graphics()
+Graphics::Graphics(ID3D11Device* device, ID3D11DeviceContext* context)
+	: m_pD3DDevice{ device }, m_pImmediateContext{ context }
 {
 	g_pVertexBuffer = NULL;
 	g_pVertexShader = NULL;
@@ -28,7 +29,7 @@ HRESULT Graphics::InitialiseGraphics()
 	bufferDesc.ByteWidth = sizeof(POS_COL_VERTEX) * 3;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	hr = g_pD3DDevice->CreateBuffer(&bufferDesc, NULL, &g_pVertexBuffer);
+	hr = m_pD3DDevice->CreateBuffer(&bufferDesc, NULL, &g_pVertexBuffer);
 
 	// Create constant buffer
 	D3D11_BUFFER_DESC constant_buffer_desc;
@@ -38,24 +39,24 @@ HRESULT Graphics::InitialiseGraphics()
 	constant_buffer_desc.ByteWidth = 80; // MUST be a multiple of 16, calculate from CB struct
 	constant_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER; // Use as a constant buffer
 
-	hr = g_pD3DDevice->CreateBuffer(&constant_buffer_desc, NULL, &g_pConstantBuffer0);
+	hr = m_pD3DDevice->CreateBuffer(&constant_buffer_desc, NULL, &g_pConstantBuffer0);
 
-	if (FAILED(hr)) // return and error code if failed
-	{
-		return hr;
-	}
+	if (FAILED(hr)) return hr;	// return and error code if failed
+	//{
+	//	return hr;
+	//}
 
 	// Copy the vertices into the buffer
 	D3D11_MAPPED_SUBRESOURCE ms;
 
 	// Lock the buffer to allow writing
-	g_pImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+	m_pImmediateContext->Map(g_pVertexBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 
 	// Copy the data
 	memcpy(ms.pData, vertices, sizeof(vertices));
 
 	// Unlock the buffer
-	g_pImmediateContext->Unmap(g_pVertexBuffer, NULL);
+	m_pImmediateContext->Unmap(g_pVertexBuffer, NULL);
 
 	// Load and compile the pixel and vertex sharders - use vs_5_0 to target DX11 hardware only
 	ID3DBlob* VS, * PS, * error;
@@ -66,10 +67,10 @@ HRESULT Graphics::InitialiseGraphics()
 	{
 		OutputDebugStringA((char*)error->GetBufferPointer());
 		error->Release();
-		if (FAILED(hr)) // Don't fail if error is just a warning
-		{
-			return hr;
-		}
+		if (FAILED(hr)) return hr;// Don't fail if error is just a warning
+		//{
+		//	return hr;
+		//}
 	}
 
 	hr = D3DX11CompileFromFile("shaders.hlsl", 0, 0, "PShader", "ps_4_0", 0, 0, 0, &PS, &error, 0);
@@ -78,30 +79,30 @@ HRESULT Graphics::InitialiseGraphics()
 	{
 		OutputDebugStringA((char*)error->GetBufferPointer());
 		error->Release();
-		if (FAILED(hr)) // Don't fail if error is just a warning
-		{
-			return hr;
-		}
+		if (FAILED(hr)) return hr;// Don't fail if error is just a warning
+		//{
+		//	return hr;
+		//}
 	}
 
 	// Create shader objects
-	hr = g_pD3DDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &g_pVertexShader);
+	hr = m_pD3DDevice->CreateVertexShader(VS->GetBufferPointer(), VS->GetBufferSize(), NULL, &g_pVertexShader);
 
-	if (FAILED(hr))
-	{
-		return hr;
-	}
+	if (FAILED(hr)) return hr;
+	//{
+	//	return hr;
+	//}
 
-	hr = g_pD3DDevice->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &g_pPixelShader);
+	hr = m_pD3DDevice->CreatePixelShader(PS->GetBufferPointer(), PS->GetBufferSize(), NULL, &g_pPixelShader);
 
-	if (FAILED(hr))
-	{
-		return hr;
-	}
+	if (FAILED(hr)) return hr;
+	//{
+	//	return hr;
+	//}
 
 	// Set the shader objects as active
-	g_pImmediateContext->VSSetShader(g_pVertexShader, 0, 0);
-	g_pImmediateContext->PSSetShader(g_pPixelShader, 0, 0);
+	m_pImmediateContext->VSSetShader(g_pVertexShader, 0, 0);
+	m_pImmediateContext->PSSetShader(g_pPixelShader, 0, 0);
 
 	// Create and set the input layout object
 	D3D11_INPUT_ELEMENT_DESC iedesc[] =
@@ -112,14 +113,14 @@ HRESULT Graphics::InitialiseGraphics()
 		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
-	hr = g_pD3DDevice->CreateInputLayout(iedesc, 2, VS->GetBufferPointer(), VS->GetBufferSize(), &g_pInputLayout);
+	hr = m_pD3DDevice->CreateInputLayout(iedesc, 2, VS->GetBufferPointer(), VS->GetBufferSize(), &g_pInputLayout);
 
-	if (FAILED(hr))
-	{
-		return hr;
-	}
+	if (FAILED(hr)) return hr;
+	//{
+	//	return hr;
+	//}
 
-	g_pImmediateContext->IASetInputLayout(g_pInputLayout);
+	m_pImmediateContext->IASetInputLayout(g_pInputLayout);
 
 	return S_OK;
 }

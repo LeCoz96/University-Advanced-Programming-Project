@@ -10,7 +10,6 @@
 #include <windows.h>
 #include <dxerr.h>
 
-#include "StaticInfo.h"
 
 using namespace DirectX;
 

@@ -1,7 +1,7 @@
 #include "Device.h"
 
-Device::Device(/*ID3D11Device* device, ID3D11DeviceContext* context, IDXGISwapChain* swapChain*/)
-	//: g_pD3DDevice{ device }, g_pImmediateContext{ context }, g_pSwapChain{ swapChain }
+Device::Device(HWND hWnd)
+	: m_hWnd{ hWnd }
 {
 }
 
@@ -10,7 +10,7 @@ HRESULT Device::InitialiseD3D()
 	HRESULT hr = S_OK;
 
 	RECT rc;
-	GetClientRect(g_hWnd, &rc);
+	GetClientRect(m_hWnd, &rc); //m_hWnd
 	UINT width = rc.right - rc.left;
 	UINT height = rc.bottom - rc.top;
 
@@ -47,7 +47,7 @@ HRESULT Device::InitialiseD3D()
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.OutputWindow = g_hWnd;
+	sd.OutputWindow = m_hWnd; //m_hWnd
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.Windowed = true;
@@ -56,7 +56,7 @@ HRESULT Device::InitialiseD3D()
 	{
 		m_driverType = driverTypes[driverTypeIndex];
 		hr = D3D11CreateDeviceAndSwapChain(NULL, m_driverType, NULL, CreateDeviceFlags, featureLevel, numFeatureLevels,
-			D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pD3DDevice, &m_featureLevel, &g_pImmediateContext);
+			D3D11_SDK_VERSION, &sd, &m_pSwapChain, &m_pD3DDevice, &m_featureLevel, &m_pImmediateContext);
 
 		if (FAILED(hr)) return hr;
 		break;
@@ -65,19 +65,19 @@ HRESULT Device::InitialiseD3D()
 
 	// Get pointer to back buffer texture
 	ID3D11Texture2D* pBackBufferTexture;
-	hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBufferTexture);
+	hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBufferTexture);
 
 	if (FAILED(hr)) return hr;
 
 	// use the back buffer texture pointer to creaete the render target view
-	hr = g_pD3DDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &g_pBackBufferRTView);
+	hr = m_pD3DDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &g_pBackBufferRTView);
 
 	pBackBufferTexture->Release();
 
 	if (FAILED(hr)) return hr;
 
 	// Set the render target view
-	g_pImmediateContext->OMSetRenderTargets(1, &g_pBackBufferRTView, NULL);
+	m_pImmediateContext->OMSetRenderTargets(1, &g_pBackBufferRTView, NULL);
 
 	// Set the viewport
 	D3D11_VIEWPORT	viewport;
@@ -89,11 +89,7 @@ HRESULT Device::InitialiseD3D()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
-	g_pImmediateContext->RSSetViewports(1, &viewport);
+	m_pImmediateContext->RSSetViewports(1, &viewport);
 
 	return S_OK;
-}
-
-void Device::ShutDown()
-{
 }
